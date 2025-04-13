@@ -19,7 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	RedditSourceManager_AddDataSource_FullMethodName = "/reddit_parser.RedditSourceManager/AddDataSource"
+	RedditSourceManager_AddDataSource_FullMethodName   = "/reddit_parser.RedditSourceManager/AddDataSource"
+	RedditSourceManager_ListDataSources_FullMethodName = "/reddit_parser.RedditSourceManager/ListDataSources"
 )
 
 // RedditSourceManagerClient is the client API for RedditSourceManager service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type RedditSourceManagerClient interface {
 	AddDataSource(ctx context.Context, in *AddDataSourceRequest, opts ...grpc.CallOption) (*AddDataSourceResponse, error)
+	ListDataSources(ctx context.Context, in *ListDataSourcesRequest, opts ...grpc.CallOption) (*ListDataSourcesResponse, error)
 }
 
 type redditSourceManagerClient struct {
@@ -47,11 +49,22 @@ func (c *redditSourceManagerClient) AddDataSource(ctx context.Context, in *AddDa
 	return out, nil
 }
 
+func (c *redditSourceManagerClient) ListDataSources(ctx context.Context, in *ListDataSourcesRequest, opts ...grpc.CallOption) (*ListDataSourcesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListDataSourcesResponse)
+	err := c.cc.Invoke(ctx, RedditSourceManager_ListDataSources_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RedditSourceManagerServer is the server API for RedditSourceManager service.
 // All implementations must embed UnimplementedRedditSourceManagerServer
 // for forward compatibility.
 type RedditSourceManagerServer interface {
 	AddDataSource(context.Context, *AddDataSourceRequest) (*AddDataSourceResponse, error)
+	ListDataSources(context.Context, *ListDataSourcesRequest) (*ListDataSourcesResponse, error)
 	mustEmbedUnimplementedRedditSourceManagerServer()
 }
 
@@ -64,6 +77,9 @@ type UnimplementedRedditSourceManagerServer struct{}
 
 func (UnimplementedRedditSourceManagerServer) AddDataSource(context.Context, *AddDataSourceRequest) (*AddDataSourceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddDataSource not implemented")
+}
+func (UnimplementedRedditSourceManagerServer) ListDataSources(context.Context, *ListDataSourcesRequest) (*ListDataSourcesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListDataSources not implemented")
 }
 func (UnimplementedRedditSourceManagerServer) mustEmbedUnimplementedRedditSourceManagerServer() {}
 func (UnimplementedRedditSourceManagerServer) testEmbeddedByValue()                             {}
@@ -104,6 +120,24 @@ func _RedditSourceManager_AddDataSource_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _RedditSourceManager_ListDataSources_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListDataSourcesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RedditSourceManagerServer).ListDataSources(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RedditSourceManager_ListDataSources_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RedditSourceManagerServer).ListDataSources(ctx, req.(*ListDataSourcesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // RedditSourceManager_ServiceDesc is the grpc.ServiceDesc for RedditSourceManager service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -114,6 +148,10 @@ var RedditSourceManager_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AddDataSource",
 			Handler:    _RedditSourceManager_AddDataSource_Handler,
+		},
+		{
+			MethodName: "ListDataSources",
+			Handler:    _RedditSourceManager_ListDataSources_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
